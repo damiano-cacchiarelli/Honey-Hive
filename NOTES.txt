@@ -1,0 +1,49 @@
+Agents:
+
+    - Queen: Q[0, ENERGY]
+    - Worker: 
+        //Option 1
+        W[0, STATES]
+        
+        //Option 2
+        W_R[0, ENERGY], W_F[0, ENERGY], W_S[0, ENERGY], W_P[0, ENERGY];
+
+        //Option 3
+        W[0, STATES]*[0, ENERGY]
+
+        //option 4
+        W[0, STATES]*[0, ENERGY]*[0, DISEASE]
+
+    - Honey Storage: H[0,N]
+
+Parameters:
+
+    - ENERGY = 10;
+    - STATES = 3;
+        Worker has these STATES: Rest (0), Find (1), Store (2), Produce (3);
+    - Max Honey Storage (N) = 1000;
+
+    - Bee Birth Rate = ... ;
+    - Bee Mortality Rate = ... ;
+    - Max Bee Population = ... ;
+
+    - Pesticide Exposure = ... ;
+
+    - Weather Conditions Rate = ... ;
+    // temperature, humidity, rainfall;
+
+    - Nectar = ... ;
+
+Roles:
+
+    - Queen Eat food - Increase ENERGY, Descrease HONEY STORAGE;
+    - Queen generate a Worker - Drecrease ENERGY, ENERGY impact Birth Rate;
+    - Worker from REST go to FIND and descrease HONEY STORAGE;
+    - Worker from FIND go to STORE;
+    - Worker from STORE go to PRODUCE and increase HONEY STORAGE;
+    - Worker from PRODUCE go to REST;
+    - Worker in FIND increase DISEASE;
+    - (*) Worker in REST decrease DISEASE;
+    - (*) Queen dies;
+    - Worker dies - ENERGY and DISEASE impact Mortality Rate;
+    
