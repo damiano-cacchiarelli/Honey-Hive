@@ -1,0 +1,9 @@
+module "population"
+load "honey-hive.pm"
+init "initial"
+add all measures
+deadline 100
+dt 1
+replica 100
+simulate
+save output "./results" prefix "seir" postfix "__"
