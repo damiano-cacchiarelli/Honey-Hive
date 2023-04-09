@@ -185,6 +185,22 @@ rule worker_rest_to_find for i in [1, ENERGY] and z in [0, DISEASE] {
 }
 
 
+/* --------------------------------- Flower --------------------------------- */
+
+/*
+Flower (F) produce NECTAR:
+    NECTAR become AVAILABLE;
+
+Base rates:
+    flower_pruduce_nectar_rate
+
+Impacts:
+    Wather condition;
+*/
+rule flower_produce_nectar for i in [0, SPECIES] and j in [0, WATER_CONCENTRATION]{
+    F[i,j,0] -[flower_pruduce_nectar_rate]-> F[i,j,1]
+}
+
 
 /* -------------------------------------------------------------------------- */
 /*                            MEASURES & PREDICATE                            */
