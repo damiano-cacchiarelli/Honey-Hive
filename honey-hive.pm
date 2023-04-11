@@ -98,13 +98,31 @@ rule queen_dies {
     Q[0] -[ 1 ]-> DB
 }
 
+/* --------------------------------- Workers -------------------------------- */
+/*
+Worker dies:
+    The residual ENERGY is 0;
+*/
+rule queen_dies for j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE]{
+    WR[0] -[ 1 ]-> DB
+}
+rule queen_dies for j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE]{
+    WR[0] -[ 1 ]-> DB
+}
+rule queen_dies for j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE]{
+    WS[0] -[ 1 ]-> DB
+}
+rule queen_dies for j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE]{
+    WP[0] -[ 1 ]-> DB
+}
+
+
 /* --------------------------------- Worker in FIND --------------------------------- */
 
 /*
 Worker from REST (WR) go to FIND (WF) state:
     Bee change state;
     Decrease bee ENERGY;
-    (*) Decrease Honey Storage (H);
 
 Base rates:
     bee_change_state_rate;
@@ -113,13 +131,12 @@ Impacts:
     Residual ENERGY (Low ENERGY decrease bee_change_state_rate);
     (*) Residual HONEY (H) in the hive;
 */
-rule worker_rest_to_find for i in [4, ENERGY] and j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE] {
-    WR[i,j,z] -[bee_change_state_rate * (1-((ENERGY-i)/ENERGY))]-> WF[i-1,j,z]
+rule worker_rest_to_find for i in [1, ENERGY] and j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE] {
+    WR[i,j,z] -[bee_change_state_rate * (i/ENERGY)]-> WF[i-1,j,z]
 }
 
 /*
 Worker (WF) meets a Flower (F) with NECTAR_AVAILABLE equal to 1 :
-    Decrease bee ENERGY;
     Increase NECTAR_BEE_STORAGE;
     Set NECTAR_AVAILABLE to 0;
 
@@ -130,7 +147,21 @@ Impacts:
     Residual Flowers with NECTAR_AVAILABLE;
 */
 rule worker_meets_flower for i in [1, ENERGY-1] and j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE] and a in [0, SPECIES] and b in [0, WATER_CONCENTRATION]{
-    WF[i,j,z] | F[a,b,1] -[%flowers_nectar_available * (1-((ENERGY-i)/ENERGY))]-> WF[i,j+1,z] | F[a,b,0]
+    WF[i,j,z] | F[a,b,1] -[%flowers_nectar_available * (i/ENERGY)]-> WF[i,j+1,z] | F[a,b,0]
+}
+
+/*
+Worker (WF) is infected with pesticide:
+    Increase DISEASE;
+
+Base rates:
+    pesticide_exposure;
+
+Impacts:
+
+*/
+rule worker_exposed_pesticide for i in [1, ENERGY] and j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE-1] {
+    WF[i,j,z] -[pesticide_exposure]-> WF[i,j,z+1]
 }
 
 /* ----------------------------- Worker in STORE ---------------------------- */
@@ -138,7 +169,6 @@ rule worker_meets_flower for i in [1, ENERGY-1] and j in [0, NECTAR_BEE_STORAGE]
 /*
 Worker from FIND (WF) go to STORE (WS) state:
     Bee change state;
-    Increase bee DISEASE;
 
 Base rates:
     bee_change_state_rate;
@@ -148,7 +178,17 @@ Impacts:
     Level of NECTAR_BEE_STORAGE (Low NECTAR_BEE_STORAGE decrease bee_change_state_rate);
 */
 rule worker_find_to_store for i in [1, ENERGY] and j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE] {
-    WF[i,j,z] -[bee_change_state_rate * ((ENERGY-i)/ENERGY) * (1-((NECTAR_BEE_STORAGE-j)/NECTAR_BEE_STORAGE))]-> WS[i,j,z]
+    WF[i,j,z] -[bee_change_state_rate * ((ENERGY-i)/ENERGY) * (j/NECTAR_BEE_STORAGE)]-> WS[i,j,z]
+}
+
+/* 
+Worker (WS) store Nectar (N):
+    Decrease bee ENERGY;
+    Increase Nectar storage (N);  
+
+TODO */
+rule worker_store_nectar for i in [1, ENERGY] and j in [1, NECTAR_BEE_STORAGE] and z in [0, DISEASE] {
+    WS[i,j,z] -[1]-> WS[i-1,0,z] | N<j>
 }
 
 /* ---------------------------- Worker in PRODUCE --------------------------- */
@@ -156,6 +196,7 @@ rule worker_find_to_store for i in [1, ENERGY] and j in [0, NECTAR_BEE_STORAGE] 
 /*
 Worker from STORE (WS) go to PRODUCE (WP) state:
     Bee change state;
+    Decrease bee ENERGY;
 
 Base rates:
     bee_change_state_rate;
@@ -164,8 +205,23 @@ Impacts:
 
 */
 rule worker_rest_to_find for i in [1, ENERGY] and z in [0, DISEASE] {
-    WS[i,0,z] -[bee_change_state_rate]-> WP[i,0,z]
+    WS[i,0,z] -[bee_change_state_rate]-> WP[i-1,0,z]
 }
+
+/* 
+Worker (WP) produce Honey (H):
+    Decrease bee ENERGY;
+    Decrease Nectar storage (N);
+    Increase Honey storage (H);
+
+TODO :
+    Use H[] in order to store decimal numbers??
+    Humidity impacts honey production??
+*/
+rule worker_produce_honey for i in [1, ENERGY] and z in [0, DISEASE] {
+    WP[i,j,z] | N<4> -[1]-> WP[i-1,0,z] | H<1>
+}
+
 
 /* ----------------------------- Worker in REST ----------------------------- */
 

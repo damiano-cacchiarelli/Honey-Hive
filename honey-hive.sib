@@ -4,6 +4,6 @@ init "initial"
 add all measures
 deadline 100
 dt 1
-replica 100
+replica 10
 simulate
-save output "./results" prefix "seir" postfix "__"
+save output "./results" prefix "hive_" postfix "__"
