@@ -6,11 +6,11 @@
 
 const ENERGY = 10;
 const STATES = 3;                           /* Worker has 4 STATES: Rest (0), Find (1), Store (2), Produce (3); */
-const MAX_STORAGE = 1000;
+const MAX_STORAGE = 10000;
 const MAX_BEE_POPULATION = 10000;
-const SPECIES = 1;
+const SPECIES = 2;
 const WATER_CONCENTRATION = 90;
-const NECTAR_AVAILABLE = 1;
+const NECTAR_AVAILABLE = 2;
 const DISEASE = 10;
 const NECTAR_BEE_STORAGE = 10;              /* A bee need 10 flowes to fill its nectar storage*/
 
@@ -24,10 +24,9 @@ species H;                                                                      
 species N;                                                                        /* Nectar Storage */
 species F of [0, SPECIES]*[0, WATER_CONCENTRATION]*[0, NECTAR_AVAILABLE];         /* Flowers */
 
-species HS; /* Honey Storage */ /*TODO*/
-species HT; /* Max Honey Storage */ /*TODO*/
+species DW; /* Death Worker */
+species DQ; /* Death Worker */
 
-species DB; /* Death Bee */ /*TODO*/
 
 /* ---------------------------------- Rate ---------------------------------- */
 
@@ -35,8 +34,9 @@ const bee_birth_rate = 0.5 ;
 const bee_mortality_rate = 0.2 ;
 const queen_mortality_rate = 0.01 ;
 
-const queen_metabolism = 0.25 ;
-const bee_metabolism = 0.40 ;
+const queen_metabolism = 0.15 ;
+const bee_metabolism = 0.25 ;
+const eat_rate = 1;
 
 const bee_change_state_rate = 0.9;
 
@@ -50,7 +50,11 @@ const pesticide_exposure = 0.01 ;
 /*                                   LABELS                                   */
 /* -------------------------------------------------------------------------- */
 
-label flowers_nectar_available = { F[i, j, 1 for i in [0,SPECIES] and j in [0,WATER_CONCENTRATION]]}
+label flowers_nectar_available = { F[i, j, 1 for i in [0,SPECIES] and j in [0,WATER_CONCENTRATION]] }
+label workers_in_rest = { WR[i, j, z for i in [1,ENERGY] and j in [0,NECTAR_BEE_STORAGE] and z in [0,DISEASE]] }
+label workers_in_find = { WF[i, j, z for i in [1,ENERGY] and j in [0,NECTAR_BEE_STORAGE] and z in [0,DISEASE]] }
+label workers_in_store = { WS[i, j, z for i in [1,ENERGY] and j in [0,NECTAR_BEE_STORAGE] and z in [0,DISEASE]] }
+label workers_in_produce = { WP[i, j, z for i in [1,ENERGY] and j in [0,NECTAR_BEE_STORAGE] and z in [0,DISEASE]] }
 
 
 /* -------------------------------------------------------------------------- */
@@ -95,7 +99,7 @@ Queen dies:
     The residual ENERGY is 0;
 */
 rule queen_dies {
-    Q[0] -[ 1 ]-> DB
+    Q[0] -[ 1 ]-> DQ
 }
 
 /* --------------------------------- Workers -------------------------------- */
@@ -103,17 +107,17 @@ rule queen_dies {
 Worker dies:
     The residual ENERGY is 0;
 */
-rule queen_dies for j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE]{
-    WR[0] -[ 1 ]-> DB
+rule worker_rest_dies for j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE]{
+    WR[0,j,z] -[ 1 ]-> DW
 }
-rule queen_dies for j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE]{
-    WR[0] -[ 1 ]-> DB
+rule worker_find_dies for j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE]{
+    WF[0,j,z] -[ 1 ]-> DW
 }
-rule queen_dies for j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE]{
-    WS[0] -[ 1 ]-> DB
+rule worker_store_dies for j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE]{
+    WS[0,j,z] -[ 1 ]-> DW
 }
-rule queen_dies for j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE]{
-    WP[0] -[ 1 ]-> DB
+rule worker_produce_dies for j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE]{
+    WP[0,j,z] -[ 1 ]-> DW
 }
 
 
@@ -204,7 +208,7 @@ Base rates:
 Impacts:
 
 */
-rule worker_rest_to_find for i in [1, ENERGY] and z in [0, DISEASE] {
+rule worker_store_to_produce for i in [1, ENERGY] and z in [0, DISEASE] {
     WS[i,0,z] -[bee_change_state_rate]-> WP[i-1,0,z]
 }
 
@@ -218,8 +222,8 @@ TODO :
     Use H[] in order to store decimal numbers??
     Humidity impacts honey production??
 */
-rule worker_produce_honey for i in [1, ENERGY] and z in [0, DISEASE] {
-    WP[i,j,z] | N<4> -[1]-> WP[i-1,0,z] | H<1>
+rule worker_produce_honey for i in [1, ENERGY] and j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE] {
+    WP[i,j,z] | N<4> -[1]-> WP[i-1,j,z] | H<1>
 }
 
 
@@ -236,9 +240,23 @@ Impacts:
     Level of NECTAR (N) (Low NECTAR increase bee_change_state_rate);
     Residual ENERGY (Low ENERGY increase bee_change_state_rate);
 */
-rule worker_rest_to_find for i in [1, ENERGY] and z in [0, DISEASE] {
-    WP[i,0,z] -[bee_change_state_rate]-> WR[i,0,z]
+rule worker_produce_to_rest for i in [1, ENERGY] and j in [0, NECTAR_BEE_STORAGE] and z in [0, DISEASE] {
+    WP[i,j,z] -[bee_change_state_rate]-> WR[i,j,z]
 }
+
+/*
+Worker (WR) eat from Honey storage (H):
+    Increase ENERGY;
+    Decrise Honey storage;
+BaseRate:
+    eat_rate;
+
+Impacts:
+    Residual ENERGY (Low ENERGY decrease eat_rate);
+*/
+rule worker_eat for i in [1, ENERGY-1] and j in [1, NECTAR_BEE_STORAGE] and z in [0, DISEASE] {
+    WR[i,j,z]<5> | H -[(1-(i/ENERGY))*eat_rate]-> WR[i+1,j,z]<5>
+} 
 
 
 /* --------------------------------- Flower --------------------------------- */
@@ -262,18 +280,20 @@ rule flower_produce_nectar for i in [0, SPECIES] and j in [0, WATER_CONCENTRATIO
 /*                            MEASURES & PREDICATE                            */
 /* -------------------------------------------------------------------------- */
 
-measure n_worker = #W[i, j, z for i in [0,STATES] and j in [0,ENERGY] and z in [0,DISEASE]];
+measure n_worker = (#workers_in_find + #workers_in_find + #workers_in_store + #workers_in_produce);
 measure honey_available = #H;
+measure nectar_available = #N;
+measure flower_with_nectar = #flowers_nectar_available;
+measure flower_without_nectar = #F[i, j, 0 for i in [0,SPECIES] and j in [0,WATER_CONCENTRATION]];
+measure worker_death = #DW;
 
 /* 
-
 predicate honey_decrise = (#HS < 50);
 predicate workers = ( #W[i for i in [0,STATES], j for j in [0,ENERGY], z for z in [0,DISEASE]]>0);
-
 */
 
 
 /* -------------------------------------------------------------------------- */
 /*                                   SYSTEM                                   */
 /* -------------------------------------------------------------------------- */
-system initial = Q[ENERGY/2]<1> | W[0,5,0]<0> | H<50>;
+system initial = Q[ENERGY/2]<1> | H<50> | N<1000> | F[0,70,1]<500> | F[1,80,1]<500>;
