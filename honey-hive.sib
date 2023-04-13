@@ -6,4 +6,4 @@ deadline 100
 dt 1
 replica 10
 simulate
-save output "./results" prefix "hive_" postfix "__"
+save output "./results/hive" prefix "hive_" postfix "__"
