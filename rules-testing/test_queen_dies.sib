@@ -1,0 +1,10 @@
+module "population"
+load "C:\Users\damia\Repository\Honey-Hive\rules-testing\test_queen_dies.pm"
+add all measures
+deadline 1000
+dt 1
+replica 10
+
+init "init"
+simulate
+save output "./results/tests/queen_death_rate" prefix "test_bdr_" postfix "__"

@@ -1,3 +1,144 @@
+# ---------------------------------------------------------------------------- #
+#                                  REFERENCES                                  #
+# ---------------------------------------------------------------------------- #
+
+CAPTION:
+    (**) - Inaccesible;
+    >    - Event taken into account;
+    *    - Event not considered;
+
+# --------------------------------- Articles --------------------------------- #
+
+a) Temperature-driven changes in viral loads in the honey bee Apis mellifera
+    https://www.sciencedirect.com/science/article/pii/S0022201118302155
+
+b) Summer weather conditions influence winter survival of honey bees (Apis mellifera) in the northeastern United States
+    https://www.nature.com/articles/s41598-021-81051-8#Tab2
+
+c) The Effect of Supplementary Feeding with Different Pollens in Autumn on Colony Development under Natural Environment
+    https://www.mdpi.com/2075-4450/13/7/588?type=check_update&version=2#
+
+d) Behavioural Effects of Pesticides in Bees
+    https://link.springer.com/article/10.1023/A:1022575315413
+
+e) Nectar Sugar Composition and Volumes of 47 Species of Gentianales from a Southern Ecuadorian Montane Forest
+    https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2803417/
+
+> Others:
+    https://www.nature.com/articles/s41598-023-32824-w
+    (**) https://link.springer.com/article/10.1007/s10980-023-01638-6
+
+
+# --------------------------------- Websites --------------------------------- #
+
+Apis mellifera: https://animalivolanti.it/insetti/api-miele
+
+https://bee-health.extension.org:
+    (1) https://bee-health.extension.org/honey-bee-nutrition/
+
+https://www.legambientefaenza.it:
+    (2) https://www.legambientefaenza.it/storie-di-api/2021/07/dal-nettare-al-miele/
+    (3) https://www.legambientefaenza.it/storie-di-api/2021/05/quanto-nettare-trasporta-unape/
+
+https://beekeepclub.com
+    (4) https://beekeepclub.com/how-honeybees-maintain-temperature-and-humidity-in-a-beehive/
+
+https://blog.3bee.com/
+    (5) https://blog.3bee.com/api-produrre-il-miele/
+
+> Others:
+    https://www.apisole.it/index.php/forum/apicoltura-in-pillole/76-impollinazione-quanto-vale
+
+# ---------------------------------------------------------------------------- #
+#                                     INFO                                     #
+# ---------------------------------------------------------------------------- #
+
+PESTICIDE EFFECTS: 
+    > Affect the ability to return to the hive (Exposure: CO2);                                                               (d*)
+    > Reduce survival rate (Exposure: CO2);                                                                                   (d*)
+    * Reduce pollen gathering ability (Exposure: CO2);                                                                        (d*)
+    * Affect the ability of the bees to communicate the source of food (Exposure: Organophorus and carbamate insecticides);   (d*)
+
+WATER:
+    * Annual precipitation of 1007 mm -> survival rate 30%;             (b*)
+    * Annual precipitation of 1205 mm -> survival rate 50%;             (b*)
+
+TEMPERATUTE:
+    The optimum temperature (90% survival rate) is between 28 °C and 34 °C;     (a*)
+    Survival rate 18.5% at 37 °C;                                               (a*)
+    Survival rate 11.9% at 15 °C;                                               (a*)
+
+HUMIDITY:
+    > The optimum humidity is 60% for evaporation of honey;                                           (4*)
+    * Low humidity below 50% causes eggs of honeybees to desiccate -> drop of the population;         (4*)
+    * High humidity -> honeybees fan dry air into the beehive;                                        (4*)
+    
+    High humididty decreases the honey production rate;
+
+
+FOOD:
+    > Carbohydrates (sugars in nectar or honey);    (1*)
+    * Water;                                        (1*)
+    * amino acids (protein from pollen);            (1*)
+    * lipids (fatty acids, sterols);                (1*)
+
+    Honey has a water content of 17%/18%;           (2*)
+    Nectar has a water content of 60%/75%;          (2*)
+    Nectar sugar concentration 25%;
+    Produce 1 millilitres of Honey requires 4 millilitres of nectar                 
+
+FEED:
+    50k bees need 1.1 liter of 50% sugar syrup per day;             (1*)
+    50k bees need 1.9 liter of 25% sugar syrup per day;             (1*)
+    One bee need 22 microlitre of 50% sugar syrup per day;          (1*)
+    One bee need 0,022 millilitres of 50% sugar syrup per day;
+    One bee need 0,038 millilitres of 25% sugar syrup per day;
+
+BEE PHYSIOGNOMY:
+    Worker bee weighs 120 mg on average;                                             (1*)
+    The weight of nectar inside the bees' honey bag is 40 mg on average;             (1*)
+
+WORKER IN FIND:
+    To collect 1000 millilitres of nectar, bees have to make around 25000 trips;     (5*)
+    Collect 0,04 millilitres of nectar per trip;
+    The number of daily trips made by a bee varies from 7 to 13 (10 on average);     (3*)
+    One bee collect 0.4 millilitres of nectar per day;
+
+FLOWERS:
+    A flower produces an average of 2 microlitres of nectar per day;                 (e*)
+    A flower produces an average of 0,002 millilitres of nectar per day;
+
+
+
+    Table Nectar volumes (e*): 
+
+                    SPECIES                             |   Nectar production 24 h covered 
+                - Melittophily -                        |       equation M ± s.d.(μL)
+    ____________________________________________________________________________________________
+                                                        |
+    Faramea uniflora Dwyer & M. V. Hayden               |             0,2 ± 0,2
+    Psychotria acuminata Benth.                         |             1,9 ± 0,8 
+    Psychotria tinctoria Ruiz & Pav.                    |             4,9 ± 3,4
+    Palicourea sp. nov. ined. C.M. Taylor               |             5,8 ± 2,3 
+    Coccocypselum condalia Pers.                        |             0,8 ± 0,4 
+    Manettia sp. 2                                      |             3,1 ± 1,4 
+    Rudgea ciliata (Ruiz & Pav.) Spreng                 |             2,1 ± 0,9 
+    Stilpnophyllum oellgaardii L. Andersson             |             3,9 ± 2,2 
+    Arcytophyllum macbridei Standl.                     |             0,5 ± 0,2 
+    Arcytophyllum capitatum (Benth.) K. Schum.          |             1,0 ± 0,5 
+    Arcytophyllum ciliolatum Standl.                    |             1,4 ± 0,8 
+    Arcytophyllum thymifolium (Ruiz & Pav.) Standl.     |             0,4 ± 0,2
+    Arcytophyllum vernicosum Standl.                    |             0,4 ± 0,4 
+    Notopleura vargasiana sp. nov. ined. C.M. Taylor    |             0,8 ± 0,3
+    Faramea cf. glandulosa Poepp. & Endl.               |             1,6 ± 0,8 
+    Psychotria reticulata Ruiz & Pav.                   |             1,0 ± 0,5 
+    Faramea coerulescens K. Schum. & K. Krause          |             4,7 ± 2,6
+
+
+# ---------------------------------------------------------------------------- #
+#                                     MODEL                                    #
+# ---------------------------------------------------------------------------- #
+
 Agents:
 
     - Queen: Q[0, ENERGY]
@@ -34,7 +175,7 @@ Parameters:
 
     - Nectar = ... ;
 
-Roles:
+Rules:
 
     - Queen Eat food - Increase ENERGY, Descrease HONEY STORAGE;
     - Queen generate a Worker - Drecrease ENERGY, ENERGY impact Birth Rate;
@@ -47,3 +188,26 @@ Roles:
     - (*) Queen dies;
     - Worker dies - ENERGY and DISEASE impact Mortality Rate;
     
+
+
+                SPECIES                             |   Nectar production 24 h covered 
+            - Melittophily -                        |       equation M ± s.d.(μL)
+____________________________________________________________________________________________
+                                                    |
+Faramea uniflora Dwyer & M. V. Hayden               |             0·2 ± 0·2
+Psychotria acuminata Benth.                         |             1·9 ± 0·8 
+Psychotria tinctoria Ruiz & Pav.                    |             4·9 ± 3·4
+Palicourea sp. nov. ined. C.M. Taylor               |             5·8 ± 2·3 
+Coccocypselum condalia Pers.                        |             0·8 ± 0·4 
+Manettia sp. 2                                      |             3·1 ± 1·4 
+Rudgea ciliata (Ruiz & Pav.) Spreng                 |             2·1 ± 0·9 
+Stilpnophyllum oellgaardii L. Andersson             |             3·9 ± 2·2 
+Arcytophyllum macbridei Standl.                     |             0·5 ± 0·2 
+Arcytophyllum capitatum (Benth.) K. Schum.          |             1·0 ± 0·5 
+Arcytophyllum ciliolatum Standl.                    |             1·4 ± 0·8 
+Arcytophyllum thymifolium (Ruiz & Pav.) Standl.     |             0·4 ± 0·2
+Arcytophyllum vernicosum Standl.                    |             0·4 ± 0·4 
+Notopleura vargasiana sp. nov. ined. C.M. Taylor    |             0·8 ± 0·3
+Faramea cf. glandulosa Poepp. & Endl.               |             1·6 ± 0·8 
+Psychotria reticulata Ruiz & Pav.                   |             1·0 ± 0·5 
+Faramea coerulescens K. Schum. & K. Krause          |             4·7 ± 2·6

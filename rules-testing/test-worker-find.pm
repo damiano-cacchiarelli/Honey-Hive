@@ -132,13 +132,7 @@ label workers_in_rest = { WR[e, p for e in [1,ENERGY] and p in [0,POISONING]] }
 label workers_in_find = { WF[e, n, p for e in [1,ENERGY] and n in [0,NECTAR_BEE_STORAGE] and p in [0,POISONING]] }
 label workers_in_store = { WS[e, n, p for e in [1,ENERGY] and n in [0,NECTAR_BEE_STORAGE] and p in [0,POISONING]] }
 label workers_in_produce = { WP[e, p for e in [1,ENERGY] and p in [0,POISONING]] }
-label workers = {
-    WR[e, p for e in [1,ENERGY] and p in [0,POISONING]],
-    WF[e, n, p for e in [1,ENERGY] and n in [0,NECTAR_BEE_STORAGE] and p in [0,POISONING]],
-    WS[e, n, p for e in [1,ENERGY] and n in [0,NECTAR_BEE_STORAGE] and p in [0,POISONING]],
-    WP[e, p for e in [1,ENERGY] and p in [0,POISONING]]
-  
-}
+label workers = { workers_in_rest, workers_in_find, workers_in_store, workers_in_produce }
 
 label used_storage = {N, H}
 
@@ -472,6 +466,7 @@ rule worker_produce_dies_energy for e in [0, ENERGY] and p in [0, POISONING] {
     WP[e,p] -[ worker_mortality_rate + (4^(p - POISONING)) ]-> DW
 }
 
+
 /* --------------------------------- Flower --------------------------------- */
 
 /*
@@ -493,7 +488,7 @@ rule flower_produce_nectar for s in [0, SPECIES]{
 /*                            MEASURES & PREDICATE                            */
 /* -------------------------------------------------------------------------- */
 
-measure n_worker = #workers;
+measure n_worker = (#workers_in_rest + #workers_in_find + #workers_in_store + #workers_in_produce);
 measure workers_in_rest = #workers_in_rest;
 measure workers_in_find = #workers_in_find;
 measure workers_in_store = #workers_in_store;

@@ -2,8 +2,8 @@ module "population"
 load "honey-hive.pm"
 init "initial"
 add all measures
-deadline 100
+deadline 1000
 dt 1
 replica 10
 simulate
-save output "./results/hive" prefix "hive_" postfix "__"
+save output "./results/tests/hive" prefix "hive_" postfix "__"
