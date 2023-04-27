@@ -43,8 +43,8 @@ const ideal_temperature = 31;
 const delta_temperature = 8;
 
 /*Hive*/
-const max_storage = 1000;                   /* The amount of honey that can be stored */
-const max_bee_population = 500;             /* The maximum number of bees in the hive */
+const max_storage = 1000000;                /* The amount of honey that can be stored */
+const max_bee_population = 100;             /* The maximum number of bees in the hive */
 
 
 /* ------------------------------- Multipliers ------------------------------ */
@@ -60,23 +60,28 @@ const queen_mortality_rate = 1/(queen_life * time_multiplier);
 
 const eat_rate = 0.9 ;
 const queen_metabolism = 0.15 ;
-const worker_metabolism = 0.25 ;
+const worker_metabolism = 0.15 ;
+
+const find_activity_rate = 1;
+const store_activity_rate = 1;
+const produce_activity_rate = 1;
+/*
 const find_activity_rate = 1.5;
 const store_activity_rate = 0.7;
 const produce_activity_rate = 2;
-
+*/
 const bee_change_state_rate = 0.9 ;
 const bee_store_nectar = 0.9;
 const bee_produce_honey = 1;
 
-const flower_pruduce_nectar_rate = 0.1 ;
+const flower_pruduce_nectar_rate = 0.25 ;
 
 
 /* --------------------------------- Params --------------------------------- */
 
 param temperature = 31 ;
 param humidity = 5;
-param pesticide_exposure_rate = 0.001 ;
+param pesticide_exposure_rate = 0.0 ;
 
 /* ---------------------------------- Math constants --------------------------------- */
 
@@ -159,8 +164,8 @@ Base rates:
 Impacts:
     Residual ENERGY;
 */
-rule queen_eat_honey for e in [0, ENERGY-1]{
-    Q[e] | H<1> -[ eat_rate * (1-1.5^(e-ENERGY))]-> Q[e+1]
+rule queen_eat_honey for e in [0, ENERGY-2]{
+    Q[e] | H<1> -[ eat_rate * (1-1.5^(e-ENERGY))]-> Q[e+2]
 }
 
 /* 
@@ -176,7 +181,7 @@ Impacts:
     Number of Worker (High number of Worker decrease worker_birth_rate);
 */
 rule queen_generate_worker for e in [1, ENERGY] {
-    Q[e] -[ worker_birth_rate * 1.7^(e-ENERGY) * (1-#workers/max_bee_population) ]-> Q[e] | WR[5, 0]
+    Q[e] -[ worker_birth_rate * 1.7^(e-ENERGY) * (1-#workers/max_bee_population) ]-> Q[e] | WR[ENERGY-1, 0]
 }
 
 /*
@@ -234,8 +239,8 @@ BaseRate:
 Impacts:
     Residual ENERGY (Low ENERGY increase eat_rate);
 */
-rule worker_eat for e in [0, ENERGY-1] and p in [0, POISONING] {
-    WR[e,p] | H<1> -[eat_rate*(1-1.5^(e-ENERGY))]-> WR[e+1,p]
+rule worker_eat for e in [0, ENERGY-2] and p in [0, POISONING] {
+    WR[e,p] | H<1> -[eat_rate*(1-1.5^(e-ENERGY))]-> WR[e+2,p]
 }
 
 /*
@@ -422,8 +427,10 @@ Impacts:
     Residual ENERGY {EF_1} (Low ENERGY increase bee_change_state_rate);
 TODO
 */
+    /*WP[e,p] -[bee_change_state_rate * ((0.8/(1+(e/critical_energy)^(2*energy_impcat))) + 0.1) * (1-(#N/(max_storage-#H)))/4]-> WR[e,p]*/
+
 rule worker_produce_to_rest for e in [1, ENERGY] and p in [0, POISONING] {
-    WP[e,p] -[bee_change_state_rate * ((0.8/(1+(e/critical_energy)^(2*energy_impcat))) + 0.1) * (1-(#N/(max_storage-#H)))/4]-> WR[e,p]
+    WP[e,p] -[bee_change_state_rate * ((0.8/(1+(e/critical_energy)^(2*energy_impcat))) + 0.1) ]-> WR[e,p]
 }
 
 /* 
@@ -502,16 +509,16 @@ measure honey_available = #H;
 measure nectar_available = #N;
 measure flower_with_nectar = #flowers_nectar_available;
 measure workers_death = #DW;
-
-measure queen_death = #Q[0];
+measure queen_death = #DQ;
+measure workers_no_energy = #WR[0, p for p in [0,POISONING]]+#WF[0, n, p for n in [0,NECTAR_BEE_STORAGE] and p in [0,POISONING]]+#WS[0, n, p for n in [0,NECTAR_BEE_STORAGE] and p in [0,POISONING]]+#WP[0, p for p in [0,POISONING]];
 
 /* 
 predicate honey_decrise = (#HS < 50);
 predicate workers = ( #W[i for i in [0,STATES], j for j in [0,ENERGY], z for z in [0,POISONING]]>0);
 */
 
-
+/*TODO reproduction rate*/
 /* -------------------------------------------------------------------------- */
 /*                                   SYSTEM                                   */
 /* -------------------------------------------------------------------------- */
-system initial = Q[ENERGY/2]<1> | WR[ENERGY/2, 0]<50> | H<20> | N<10> | F[0,1]<500> | F[1,1]<500>;
+system initial = Q[ENERGY-1]<1> | WR[ENERGY-1, 0]<20> | H<1> | N<1> | F[0,1]<50> | F[1,1]<50>;
