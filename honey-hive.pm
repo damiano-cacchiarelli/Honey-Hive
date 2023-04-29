@@ -31,11 +31,14 @@ species F of [0, SPECIES]*[0, NECTAR_AVAILABLE];                                
 species DQ;                                                                       /* Death Queen */
 species DW;                                                                       /* Death Worker */
 
+species N_F;     /*Nectar used for food */
+species N_H;     /*Nectar used for Honey*/
+species N_QF;    /*Nectar used for Queen food */
+
 /* --------------------------------- Consts --------------------------------- */
 
 /*Bee*/
-const worker_life = 20;                     /* On average, a bee lives about 20 days */
-const queen_life = 700;                     /* On average, a queen lives about 2 years */
+
 
 /*Environment*/
 const ideal_humidity = 5;                   /* A positive natural number between 0 and 9*/
@@ -43,20 +46,20 @@ const ideal_temperature = 31;
 const delta_temperature = 8;
 
 /*Hive*/
-const max_storage = 1000000;                /* The amount of honey that can be stored */
+const max_storage = 100;                    /* The amount of honey that can be stored */
 const max_bee_population = 100;             /* The maximum number of bees in the hive */
 
 
 /* ------------------------------- Multipliers ------------------------------ */
 
-const time_multiplier = 6;
+
 
 
 /* ---------------------------------- Rate ---------------------------------- */
 
 const worker_birth_rate = 0.9 ;
-const worker_mortality_rate = 1/(worker_life * time_multiplier) ;
-const queen_mortality_rate = 1/(queen_life * time_multiplier);
+const worker_mortality_rate = 0.35 ;
+const queen_mortality_rate = 0.001 ;
 
 const eat_rate = 0.9 ;
 const queen_metabolism = 0.15 ;
@@ -99,7 +102,7 @@ const critical_workers_population = 5;
 /*
 {ID: HF_1} Humidity function:
 
-    1\(humidity - ideal_humidity)^2humidity_impact;
+    1/(humidity - ideal_humidity)^2humidity_impact;
 
 humidity_impact:
     Defines how fast the function for humidity goes up;
@@ -107,6 +110,7 @@ humidity_impact:
 
 */
 const humidity_impact = 1;
+const humidity_rate = 1/(((humidity - ideal_humidity)^2*humidity_impact)+1);
 
 /*
 {ID: EF_1} Energy function: 
@@ -165,7 +169,7 @@ Impacts:
     Residual ENERGY;
 */
 rule queen_eat_honey for e in [0, ENERGY-2]{
-    Q[e] | H<1> -[ eat_rate * (1-1.5^(e-ENERGY))]-> Q[e+2]
+    Q[e] | N<4> -[ eat_rate * (1-1.5^(e-ENERGY))]-> Q[e+2] | N_QF<4>
 }
 
 /* 
@@ -240,8 +244,22 @@ Impacts:
     Residual ENERGY (Low ENERGY increase eat_rate);
 */
 rule worker_eat for e in [0, ENERGY-2] and p in [0, POISONING] {
-    WR[e,p] | H<1> -[eat_rate*(1-1.5^(e-ENERGY))]-> WR[e+2,p]
+    WR[e,p] | N<4> -[eat_rate*(1-1.5^(e-ENERGY))]-> WR[e+2,p] | N_F<4>
 }
+
+/*
+Worker (WR) consume ENERGY.
+    Decrease ENERGY;
+
+Base rates:
+    worker_metabolism;
+
+Impacts:
+
+*//*
+rule worker_rest_consume_energy for e in [1, ENERGY] and p in [0, POISONING]{
+    WR[e,p] -[worker_metabolism]-> WR[e-1,p]
+}*/
 
 /*
 Worker in rest (WR) dies:
@@ -290,7 +308,7 @@ Impacts:
     Residual Flowers with NECTAR_AVAILABLE;
 */
 rule worker_meets_flower for e in [1, ENERGY] and n in [0, NECTAR_BEE_STORAGE-1] and p in [0, POISONING] and s in [0, SPECIES]{
-    WF[e,n,p] | F[s,1] -[(#flowers_nectar_available/#flowers) * 1.5^(e/ENERGY)]-> WF[e,n+1,p] | F[s,0]
+    WF[e,n,p] | F[s,1] -[(#flowers_nectar_available/#flowers)]-> WF[e,n+1,p] | F[s,0]
 }
 
 /*
@@ -446,7 +464,7 @@ Impacts:
     Humidity impacts bee_produce_honey {HF_1};
 */
 rule worker_produce_honey for e in [1, ENERGY] and p in [0, POISONING] {
-    WP[e,p] | N<4> -[bee_produce_honey * (1/(1+(humidity-ideal_humidity)^(2*humidity_impact))) * 1.3^(e-ENERGY)]-> WP[e,p] | H<1>
+    WP[e,p] | N<4> -[bee_produce_honey * humidity_rate * 1.3^(e-ENERGY) * (#N/(max_storage-#H))]-> WP[e,p] | H<1> | N_H<4>
 }
 
 /*
@@ -512,6 +530,12 @@ measure workers_death = #DW;
 measure queen_death = #DQ;
 measure workers_no_energy = #WR[0, p for p in [0,POISONING]]+#WF[0, n, p for n in [0,NECTAR_BEE_STORAGE] and p in [0,POISONING]]+#WS[0, n, p for n in [0,NECTAR_BEE_STORAGE] and p in [0,POISONING]]+#WP[0, p for p in [0,POISONING]];
 
+
+measure nectar_food = #N_F;
+measure nectar_honey = #N_H;
+measure nectar_queen_food = #N_QF;
+
+predicate colony_survived = (#Q[e for e in [0, ENERGY]] > 0);
 /* 
 predicate honey_decrise = (#HS < 50);
 predicate workers = ( #W[i for i in [0,STATES], j for j in [0,ENERGY], z for z in [0,POISONING]]>0);
@@ -521,4 +545,4 @@ predicate workers = ( #W[i for i in [0,STATES], j for j in [0,ENERGY], z for z i
 /* -------------------------------------------------------------------------- */
 /*                                   SYSTEM                                   */
 /* -------------------------------------------------------------------------- */
-system initial = Q[ENERGY-1]<1> | WR[ENERGY-1, 0]<20> | H<1> | N<1> | F[0,1]<50> | F[1,1]<50>;
+system initial = Q[ENERGY-1]<1> | WR[ENERGY-1, 0]<20> | H<1> | N<100> | F[0,1]<0> | F[1,1]<0>;

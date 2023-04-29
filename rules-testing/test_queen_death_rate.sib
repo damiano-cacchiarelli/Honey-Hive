@@ -1,7 +1,7 @@
 module "population"
-load "C:\Users\damia\Repository\Honey-Hive\rules-testing\test_queen_dies.pm"
+load "C:\Users\damia\Repository\Honey-Hive\rules-testing\test_queen_death_rate.pm"
 add all measures
-deadline 1000
+deadline 5000
 dt 1
 replica 10
 

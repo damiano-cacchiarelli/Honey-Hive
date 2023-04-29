@@ -2,11 +2,9 @@
 /* ---------------------------------- Const --------------------------------- */
 
 const ENERGY = 10;                          /* The energy available to a bee */
-const QUEEN_LIFE = 800;                     /* On average, a queen lives about 2 years */
 
-const time_multipliers = 6;
-const queen_mortality_rate = 1/(queen_life * time_multipliers);
-const critical_workers_population = 5;
+const queen_mortality_rate = 0.001;
+const critical_workers_population = 10;
 
 /* --------------------------------- Agents --------------------------------- */
 
@@ -30,14 +28,14 @@ Impacts:
 
 */
 rule queen_dies for e in [0, ENERGY]{
-    Q[e] -[ (queen_mortality_rate) + 1/4^(workers - critical_workers_population/3)]-> DQ
+    Q[e] -[ (queen_mortality_rate) + 1/4^((workers + 1) - critical_workers_population/3)]-> DQ
 }
 
 /* -------------------------------------------------------------------------- */
 /*                                   MEASURE                                  */
 /* -------------------------------------------------------------------------- */
 
-measure queen_death = #Q[0];
+measure queen_death = #Q[e for e in [0,ENERGY]];
 
 /* -------------------------------------------------------------------------- */
 /*                                   SYSTEM                                   */

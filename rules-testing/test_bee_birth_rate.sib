@@ -1,0 +1,9 @@
+module "population"
+load "C:\Users\damia\Repository\Honey-Hive\rules-testing\test_bee_birth_rate.pm"
+init "init"
+add all measures
+deadline 1000
+dt 1
+replica 10
+simulate
+save output "./results/tests/bee_birth_rate" prefix "test_bbr_" postfix "__"
