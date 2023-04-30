@@ -10,6 +10,9 @@ const POISONING = 10;                       /* The poisoning level of a bee */
 const SPECIES = 3;                          /* The max number of flower species in the simulation */
 const NECTAR_AVAILABLE = 2;                 /* 1 if the flower has nectar available; 0 if not available */
 
+/*Hive*/            
+const FOOD_STORAGE = 1000;                  /* The amount of nectar that can be stored */
+
 /* --------------------------------- Agents --------------------------------- */
 
 species Q of [0, ENERGY];                               /* Queen */
@@ -30,17 +33,6 @@ species N_QF;  /*Nectar used for Queen food */
 
 species BB;    /*Born Bees*/
 
-/* --------------------------------- Consts --------------------------------- */
-
-/*Bee*/
-
-
-/*Environment*/
-
-/*Hive*/            
-const food_storage = 1000;                      /* The amount of nectar that can be stored */
-const max_bee_population = 100;                 /* The maximum number of bees in the hive */
-
 /* ---------------------------------- Rates ---------------------------------- */
 
 const eat_rate = 0.90 ;
@@ -56,14 +48,14 @@ const worker_store_nectar = 0.9 ;
 const worker_produce_honey_rate = 0.5 ;
 
 const flower_pruduce_nectar_rate = 0.2 ;
-const rainfall_rate = 1;
 
 
 /* --------------------------------- Params --------------------------------- */
 
 param temperature = 31 ;
+param rainfall_rate = 1;
 param humidity = 5 ;
-param flowers_biodiversity = 3 ;
+param flowers_biodiversity = 1 ;
 param pesticide_exposure_rate = 0.0 ;
 
 /* ---------------------------------- Math functions --------------------------------- */
@@ -142,6 +134,7 @@ label flowers_nectar_available = { F[s, 1 for s in [0,SPECIES]] }
 
 /*Bees*/
 label workers = { WB[e, p for e in [1,ENERGY] and p in [0,POISONING]] }
+label infected_workers = { WB[e, p for e in [0,ENERGY] and p in [1,POISONING]] }
 
 /*Hive*/            
 label used_storage = { N }
@@ -216,7 +209,7 @@ Impacts:
     Number of Worker (High number of Worker decrease bee_birth_rate);
 */
 rule queen_generate_worker for e in [1, ENERGY] {
-    Q[e] -[ bee_birth_rate * (e/ENERGY) * ((#N+1)/food_storage)]-> Q[e] | WB[ENERGY-1, 0]<2> | BB<2>
+    Q[e] -[ bee_birth_rate * (e/ENERGY) * ((#N+1)/FOOD_STORAGE)]-> Q[e] | WB[ENERGY-1, 0]<2> | BB<2>
 }
 
 
@@ -285,7 +278,7 @@ Impacts:
     Residual Flowers with NECTAR_AVAILABLE (Low Flowers decrease worker_store_nectar);
 */
 rule worker_collect_nectar for e in [1, ENERGY] and p in [0, POISONING] and s in [0, SPECIES]{
-    WB[e,p] | F[s,1] -[worker_store_nectar * (1 - #N/food_storage) * (#flowers_nectar_available/#flowers)]-> WB[e,p] | F[s,0] | N<1>
+    WB[e,p] | F[s,1] -[worker_store_nectar * (1 - #N/FOOD_STORAGE) * (#flowers_nectar_available/#flowers)]-> WB[e,p] | F[s,0] | N<1>
 }
 
 /*
@@ -317,7 +310,7 @@ Impacts:
 
 */
 rule worker_produce_honey for e in [1, ENERGY] and p in [0, POISONING]{
-    WB[e,p] | N<2> -[worker_produce_honey_rate * humidity_rate/2 * (e/ENERGY) * (#N/(food_storage))]-> WB[e,p] | H<1> | N_H<2>
+    WB[e,p] | N<2> -[worker_produce_honey_rate * humidity_rate/2 * (e/ENERGY) * (#N/(FOOD_STORAGE))]-> WB[e,p] | H<1> | N_H<2>
 }
 
 
@@ -358,6 +351,8 @@ measure nectar_queen_food = #N_QF;
 
 measure born_bee = #BB;
 
+measure poisoned_workers = #infected_workers;
+
 
 /* -------------------------------- Predicate ------------------------------- */
 
@@ -372,22 +367,159 @@ predicate workers = ( #W[i for i in [0,STATES], j for j in [0,ENERGY], z for z i
 /* -------------------------------------------------------------------------- */
 system init = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<40> | H<0> | N<40> | F[0,1]<500> | F[1,1]<500>;
 
-system init1 = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<10> | H<0> | N<20> | F[0,1]<500> | F[1,1]<500>;
-system init2 = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<20> | H<0> | N<20> | F[0,1]<5> | F[1,1]<5>;
+system new_hive = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<40>  | H<0> | N<40>             | F[0,1]<500> | F[1,1]<500>;
+system old_hive = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<200> | H<0> | N<FOOD_STORAGE/2> | F[0,1]<500> | F[1,1]<500>;
 
+/* ------------------------------- Arid biomes ------------------------------ */
 
+/* 
+Desert biome: few flowers, a hot, dry climate and low rainfall;
 
-system new_hive = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<20>  | H<0> | N<20>             | F[0,1]<500> | F[1,1]<500>;
-system old_hive = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<500> | H<0> | N<food_storage/2> | F[0,1]<500> | F[1,1]<500>;
+Params:
+    temperature = 45; 
+    rainfall_rate = 1;
+    humidity = 1;
+    flowers_biodiversity = 1 ;
+    pesticide_exposure_rate = 0.0; 0.8;
+*/
+system new_hive_desert = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<40>  | H<0> | N<40>             | F[0,1]<10>;
+system old_hive_desert = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<200> | H<0> | N<FOOD_STORAGE/2> | F[0,1]<10>;
 
-system new_hive_desert = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<20>  | H<0> | N<20>             | F[0,1]<10>;
-system old_hive_desert = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<500> | H<0> | N<food_storage/2> | F[0,1]<10>;
+/*
+Savanna biome: 
 
-system new_hive_frozen_river = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<20>  | H<0> | N<20>             | F[0,1]<300> | F[1,1]<300>;
-system old_hive_frozen_river = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<500> | H<0> | N<food_storage/2> | F[0,1]<300> | F[1,1]<300>;
+Params:
+    temperature = 31; 
+    rainfall_rate = 1;
+    humidity = 1;
+    flowers_biodiversity = 1 ;
+    pesticide_exposure_rate = 0.0; 0.8;
+*/
+system new_hive_savanna = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<40>  | H<0> | N<40>             | F[0,1]<300>;
+system old_hive_savanna = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<200> | H<0> | N<FOOD_STORAGE/2> | F[0,1]<300>;
 
-system new_hive_flower_forest = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<20>  | H<0> | N<20>             | F[0,1]<350> | F[1,1]<350> | F[2,1]<350>;
-system old_hive_flower_forest = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<500> | H<0> | N<food_storage/2> | F[0,1]<350> | F[1,1]<350> | F[2,1]<350>;
+/*
+Taiga biome: 
+
+Params:
+    temperature = 15; 
+    rainfall_rate = 1;
+    humidity = 1;
+    flowers_biodiversity = 1 ;
+    pesticide_exposure_rate = 0.0; 0.8;
+*/
+system new_hive_taiga = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<40>  | H<0> | N<40>             | F[0,1]<400>;
+system old_hive_taiga = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<200> | H<0> | N<FOOD_STORAGE/2> | F[0,1]<400>;
+
+/* ----------------------------- Wetland biomes ----------------------------- */
+
+/*
+Jungle biome: 
+
+Params:
+    temperature = 45; 
+    rainfall_rate = 1;
+    humidity = 9;
+    flowers_biodiversity = 3 ;
+    pesticide_exposure_rate = 0.0; 0.8;
+*/
+system new_hive_jungle = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<40>  | H<0> | N<40>             | F[0,1]<300> | F[1,1]<300> | F[2,1]<300>;
+system old_hive_jungle = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<200> | H<0> | N<FOOD_STORAGE/2> | F[0,1]<300> | F[1,1]<300> | F[2,1]<300>;
+
+/*
+Swamp biome: 
+
+Params:
+    temperature = 31; 
+    rainfall_rate = 1;
+    humidity = 9;
+    flowers_biodiversity = 3 ;
+    pesticide_exposure_rate = 0.0; 0.8;
+*/
+system new_hive_swamp = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<40>  | H<0> | N<40>             | F[0,1]<200> | F[1,1]<200> | F[2,1]<200>;
+system old_hive_swamp = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<200> | H<0> | N<FOOD_STORAGE/2> | F[0,1]<200> | F[1,1]<200> | F[2,1]<200>;
+
+/*
+Frozen River biome: 
+
+Params:
+    temperature = 15; 
+    rainfall_rate = 1;
+    humidity = 9;
+    flowers_biodiversity = 3 ;
+    pesticide_exposure_rate = 0.0; 0.8;
+*/
+system new_hive_frozen_river = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<40>  | H<0> | N<40>             | F[0,1]<200> | F[2,1]<200> | F[2,1]<200>;
+system old_hive_frozen_river = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<200> | H<0> | N<FOOD_STORAGE/2> | F[0,1]<200> | F[2,1]<200> | F[2,1]<200>;
+
+/* ---------------------------- Temperate biomes ---------------------------- */
+
+/*
+Plains biome: 
+
+Params:
+    temperature = 45; 
+    rainfall_rate = 1;
+    humidity = 5;
+    flowers_biodiversity = 2 ;
+    pesticide_exposure_rate = 0.0; 0.8;
+*/
+system new_hive_plains = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<40>  | H<0> | N<40>             | F[0,1]<400> | F[1,1]<400>;
+system old_hive_plains = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<200> | H<0> | N<FOOD_STORAGE/2> | F[0,1]<400> | F[1,1]<400>;
+
+/*
+Flower Forest biome: 
+
+Params:
+    temperature = 31; 
+    rainfall_rate = 1;
+    humidity = 5;
+    flowers_biodiversity = 2 ;
+    pesticide_exposure_rate = 0.0; 0.8;
+*/
+system new_hive_flower_forest = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<40>  | H<0> | N<40>             | F[0,1]<600> | F[1,1]<600>;
+system old_hive_flower_forest = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<200> | H<0> | N<FOOD_STORAGE/2> | F[0,1]<600> | F[1,1]<600>;
+
+/*
+Stony Peaks biome: 
+
+Params:
+    temperature = 15; 
+    rainfall_rate = 1;
+    humidity = 5;
+    flowers_biodiversity = 2 ;
+    pesticide_exposure_rate = 0.0; 0.8;
+*/
+system new_hive_stony_peaks = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<40>  | H<0> | N<40>             | F[0,1]<250> | F[2,1]<250>;
+system old_hive_stony_peaks = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<200> | H<0> | N<FOOD_STORAGE/2> | F[0,1]<250> | F[2,1]<250>;
+
+/* ------------------------------ Mixed biomes ------------------------------ */
+
+/*
+Desert x Flower Forest biome: 
+
+Params:
+    temperature = 45; 
+    rainfall_rate = 0.3;
+    humidity = 1;
+    flowers_biodiversity = 2 ;
+    pesticide_exposure_rate = 0.0; 0.8;
+*/
+system new_hive_desert_x_flower_forest = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<40>  | H<0> | N<40>             | F[0,1]<600> | F[1,1]<600>;
+system old_hive_desert_x_flower_forest = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<200> | H<0> | N<FOOD_STORAGE/2> | F[0,1]<600> | F[1,1]<600>;
+
+/*
+Flower Forest x Desert biome: 
+
+Params:
+    temperature = 31; 
+    rainfall_rate = 1;
+    humidity = 5;
+    flowers_biodiversity = 1 ;
+    pesticide_exposure_rate = 0.0; 0.8;
+*/
+system new_hive_flower_forest_x_desert = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<40>  | H<0> | N<40>             | F[0,1]<10>;
+system old_hive_flower_forest_x_desert = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<200> | H<0> | N<FOOD_STORAGE/2> | F[0,1]<10>;
 
 
 /* -------------------------------------------------------------------------- */

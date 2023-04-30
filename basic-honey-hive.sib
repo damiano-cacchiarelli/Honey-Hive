@@ -1,10 +1,13 @@
 module "population"
-load "C:\Users\damia\Repository\Honey-Hive\rules-testing\basic_honey-hive.pm"
+load "C:\Users\damia\Repository\Honey-Hive\basic-honey-hive.pm"
 
-init "old_hive_frozen_river"
+init "init"
+env
+
 add all measures
 deadline 1000
 dt 1
 replica 50
+
 simulate
-save output "./results/tests/basic-hive" prefix "hive_" postfix "__"
+save output "./results/basic-honey-hive/init" prefix "hive_" postfix "__"
