@@ -190,6 +190,36 @@ Rules:
     
 
 
+ n  | Temperatura | Umidità | Precipitazioni | Fiori | TODO
+ 1*    caldo        secco           0.1         0.1
+ 2*    caldo        normale          1          0.6
+ 3*    caldo        umido            1          0.5
+ 4*    normale      secco           0.3         0.3
+ 5*    normale      normale          1          0.8
+ 6*    normale      umido            1          0.6
+ 7*    freddo       secco           0.5         0.5
+ 8*    freddo       normale          1          0.7
+ 9*    freddo       umido            1          0.6 
+
+Pesticidi?? Temperature intermedie (caldo-normale e normale-freddo)??
+
+Wetland biomes:
+    Jungle          3;
+    Swamp           6;
+    Frozen River    9;
+
+Arid biomes:
+    Desert          1; 
+    Savanna         4;
+    Taiga           7;
+
+Temperate biomes:
+    Plains          2;
+    Flower Forest   5;
+    Stony Peaks     8;
+
+
+
                 SPECIES                             |   Nectar production 24 h covered 
             - Melittophily -                        |       equation M ± s.d.(μL)
 ____________________________________________________________________________________________

@@ -7,7 +7,7 @@ const ENERGY = 10;                          /* The energy available to a bee. A 
 const POISONING = 10;                       /* The poisoning level of a bee */
 
 /*Flowers*/
-const SPECIES = 2;                          /* The number of flower species in the simulation */
+const SPECIES = 3;                          /* The number of flower species in the simulation */
 const NECTAR_AVAILABLE = 2;                 /* 1 if the flower has nectar available; 0 if not available */
 
 /* --------------------------------- Agents --------------------------------- */
@@ -24,6 +24,7 @@ species F of [0, SPECIES]*[0, NECTAR_AVAILABLE];        /* Flowers */
 
 species DQ;                                             /* Death Queen */
 species DW;                                             /* Death Worker */
+species DF;                                             /* Death Forager */
 
 /*Debug*/
 species N_F;   /*Nectar used for food */
@@ -56,6 +57,9 @@ const bee_birth_rate = 0.90 ;
 
 const worker_metabolism = 0.30 ;
 const worker_mortality_rate = 0.35 ;
+
+const forager_metabolism = 0.30 ;
+const forager_mortality_rate = 0.35 ;
 
 const bee_store_nectar = 0.9;
 
@@ -157,20 +161,18 @@ Base rates:
     bee_birth_rate;
 
 Impacts: 
-    Residual ENERGY (Low ENERGY decrease bee_birth_rate);
+    Food availbility (Low Food decrease bee_birth_rate);
     Number of Worker (High number of Worker decrease bee_birth_rate);
-
-bee_birth_rate * 1.7^(e-ENERGY) * (1-#workers/max_bee_population)
 */
 rule queen_generate_worker for e in [1, ENERGY] {
-    Q[e] -[ bee_birth_rate * (e/ENERGY) * ((#used_storage+1)/food_storage)]-> Q[e] | WB[ENERGY-1, 0]<2> | BB<2>
+    Q[e] -[ bee_birth_rate * (e/ENERGY) * ((#used_storage+1)/food_storage)]-> Q[e] | WB[ENERGY-1, 0]<2> | FB[ENERGY-1, 0]<2> | BB<2>
 }
 
 /*
 >> QUEEN consume ENERGY <<
 
 Results:
-    Drecrease ENERGY;
+    Drecrease Queen (Q) ENERGY;
 
 Base rates:
     queen_metabolism;
@@ -191,14 +193,13 @@ Base rates:
 Impacts: 
     Number of Workers {WF_1} (Low number of Workers increase queen_mortality_rate);
 
-queen_mortality_rate + 1/4^(#worker_bees - critical_workers_population/2)
 */
 rule queen_dies for e in [0, ENERGY]{
     Q[e] -[ queen_mortality_rate + 1/4^(#worker_bees - critical_workers_population/2) ]-> DQ
 }
 
 
-/* --------------------------------- Worker --------------------------------- */
+/* ------------------------------- Worker Bee ------------------------------- */
 
 /*
 >> WORKER EATS <<
@@ -212,8 +213,6 @@ BaseRate:
 
 Impacts:
     Residual ENERGY (Low ENERGY increase eat_rate);
-
-eat_rate*(1-1.5^(e-ENERGY))
 */
 rule worker_eat for e in [0, ENERGY-1] and p in [0, POISONING] {
     WB[e,p] | N<1> -[eat_rate * (1 - e/ENERGY)]-> WB[e+1,p] | N_F<1>
@@ -223,11 +222,10 @@ rule worker_eat for e in [0, ENERGY-1] and p in [0, POISONING] {
 >> WORKER consume ENERGY <<
 
 Results:
-    Decrease Worker (W) ENERGY;
+    Decrease Worker (WB) ENERGY;
 
 Base rates:
     worker_metabolism;
-    
 */
 rule worker_consume_energy for e in [1, ENERGY] and p in [0, POISONING]{
     WB[e,p] -[worker_metabolism]-> WB[e-1,p]
@@ -243,43 +241,116 @@ Base rates:
     worker_mortality_rate
 
 Impacts:
+    Residual ENERGY (Low ENERGY increase worker_mortality_rate);
     POISONING level (High level of POISONING increase worker_mortality_rate);
     Temperature impact (TODO);
-
 */
 rule worker_dies for e in [0, ENERGY] and p in [0, POISONING] {
-    WB[e,p] -[ (1 - e/ENERGY) * worker_mortality_rate + 4^(p - POISONING)]-> DW
+    WB[e,p] -[ worker_mortality_rate * (1 - e/ENERGY) + 4^(p - POISONING)]-> DW
 }
 
-/* 
-Worker (WS) store NECTAR (N):
-    Decrease bee ENERGY;
+
+/*
+>> WORKER becomes FORAGER <<
+
+Results:
+    Add new entity in Forager bee (WB) species;
+
+*/
+rule worker_become_forager for e in [0, ENERGY] and p in [0, POISONING-1] {
+    WB[e,p] -[(1.0 - #N/food_storage) * (#FB/worker_bees - 0.5)]-> FB[e,p]
+}
+
+/* ------------------------------- Forager Bee ------------------------------ */
+
+/*
+>> FORAGER EATS <<
+
+Results:
+    Increase Forager (WB) ENERGY;
+    Decrise NECTAR storage (N);
+
+BaseRate:
+    eat_rate;
+
+Impacts:
+    Residual ENERGY (Low ENERGY increase eat_rate);
+*/
+rule forager_eat for e in [0, ENERGY-1] and p in [0, POISONING] {
+    FB[e,p] | N<1> -[eat_rate * (1 - e/ENERGY)]-> FB[e+1,p] | N_F<1>
+}
+
+/*
+>> FORAGER consume ENERGY <<
+
+Results:
+    Decrease Forager (FB) ENERGY;
+
+Base rates:
+    forager_metabolism;
+*/
+rule forager_consume_energy for e in [1, ENERGY] and p in [0, POISONING]{
+    FB[e,p] -[forager_metabolism]-> FB[e-1,p]
+}
+
+/*
+>> FORAGER DIES <<
+
+Results:
+    Add new entity in Death Forager (DF) species;
+
+Base rates:
+    forager_mortality_rate
+
+Impacts:
+    Residual ENERGY (Low ENERGY increase forager_mortality_rate);
+    POISONING level (High level of POISONING increase forager_mortality_rate);
+    Temperature impact (TODO);
+*/
+rule forager_dies for e in [0, ENERGY] and p in [0, POISONING] {
+    FB[e,p] -[ forager_mortality_rate * (1 - e/ENERGY) + 4^(p - POISONING)]-> DF
+}
+
+/*
+>> FORAGER meets FLOWER <<
+
+Results:
     Increase NECTAR storage (N);
+    Set FLOWER (F) NECTAR_AVAILABLE to 0;
 
 Base rates:
     bee_store_nectar;
 
+Impacts:
+    Food availbility (Low Food increase bee_store_nectar);
+    Residual Flowers with NECTAR_AVAILABLE (Low Flowers decrease bee_store_nectar);
+*/
+rule forager_meets_flower for e in [1, ENERGY] and p in [0, POISONING] and s in [0, SPECIES]{
+    FB[e,p] | F[s,1] -[bee_store_nectar * (1- #used_storage/food_storage)*(#flowers_nectar_available/#flowers)]-> FB[e,p] | F[s,0] | N<2>
+}
+
+/*
+>> TODO
+Worker (WF) is infected with pesticide:
+    Increase POISONING;
+
+Base rates:
+    pesticide_exposure_rate;
 *//*
-rule worker_store_nectar for e in [1, ENERGY] and p in [0, POISONING] {
-    WB[e,p] -[bee_store_nectar * (1- #used_storage/food_storage)]-> WB[e,p] | N<1>
+rule worker_exposed_pesticide for e in [0, ENERGY] and p in [0, POISONING-1] {
+    FB[e,p] -[pesticide_exposure_rate]-> FB[e,p+1]
 }*/
 
 /*
-Worker (WF) meets a Flower (F) with NECTAR_AVAILABLE equal to 1 :
-    Increase NECTAR_BEE_STORAGE;
-    Set NECTAR_AVAILABLE to 0;
+>> FORAGER becomes WORKER <<
 
-Base rates:
+Results:
+    Add new entity in Worker bee (WB) species;
 
-Impacts:
-    Residual ENERGY (Low ENERGY decrease bee_meets_flower_rate);
-    Residual Flowers with NECTAR_AVAILABLE;
-
-(#flowers_nectar_available/flowers)
-*/
-rule worker_meets_flower for e in [1, ENERGY] and p in [0, POISONING] and s in [0, SPECIES]{
-    WB[e,p] | F[s,1] -[bee_store_nectar * (1- #used_storage/food_storage)*(#flowers_nectar_available/#flowers)]-> WB[e,p] | F[s,0] | N<1>
-}
+*//*
+rule forager_become_worker for e in [0, ENERGY] and p in [0, POISONING-1] {
+    FB[e,p] -[(1.0 - #N/food_storage) * #FB/]-> WB[e,p]
+}*/
 
 /* --------------------------------- Flower --------------------------------- */
 
@@ -291,7 +362,7 @@ Base rates:
     flower_pruduce_nectar_rate
 
 Impacts:
-    rainfall_rate (Low rainfall decrease flower_pruduce_nectar_rate);
+    Param rainfall_rate (Low rainfall decrease flower_pruduce_nectar_rate);
 */
 rule flower_produce_nectar for s in [0, SPECIES]{
     F[s,0] -[flower_pruduce_nectar_rate * rainfall_rate]-> F[s,1]
@@ -309,7 +380,7 @@ measure forages = #foragers;
 measure honey_available = #H;
 measure nectar_available = #N;
 measure flower_with_nectar = #flowers_nectar_available;
-measure workers_death = #DW;
+measure workers_death = #DW + #DF;
 measure queen_death = #DQ;
 
 measure nectar_food = #N_F;
@@ -324,18 +395,53 @@ predicate honey_decrise = (#HS < 50);
 predicate workers = ( #W[i for i in [0,STATES], j for j in [0,ENERGY], z for z in [0,POISONING]]>0);
 */
 
-
 /* -------------------------------------------------------------------------- */
 /*                                   SYSTEM                                   */
 /* -------------------------------------------------------------------------- */
-system init = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<20> | H<0> | N<20> | F[0,1]<5> | F[1,1]<5>;
+system init = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<10> | FB[ENERGY-1, 0]<10> | H<0> | N<20> | F[0,1]<500> | F[1,1]<500>;
+
+system init1 = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<10> | FB[ENERGY-1, 0]<10> | H<0> | N<20> | F[0,1]<500> | F[1,1]<500>;
+system init2 = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<20> | H<0> | N<20> | F[0,1]<5> | F[1,1]<5>;
+
 
 
 system new_hive = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<20>  | H<0> | N<20>             | F[0,1]<500> | F[1,1]<500>;
 system old_hive = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<500> | H<0> | N<food_storage/2> | F[0,1]<500> | F[1,1]<500>;
 
-system new_hive_desert = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<20>  | H<0> | N<20>             | F[0,1]<0> | F[1,1]<0>;
-system old_hive_desert = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<500> | H<0> | N<food_storage/2> | F[0,1]<0> | F[1,1]<0>;
+system new_hive_desert = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<20>  | H<0> | N<20>             | F[0,1]<10>;
+system old_hive_desert = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<500> | H<0> | N<food_storage/2> | F[0,1]<10>;
 
-system new_hive_flower_forest = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<20>  | H<0> | N<20>             | F[0,1]<800> | F[1,1]<800>;
-system old_hive_flower_forest = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<500> | H<0> | N<food_storage/2> | F[0,1]<800> | F[1,1]<800>;
+system new_hive_frozen_river = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<20>  | H<0> | N<20>             | F[0,1]<300> | F[1,1]<300>;
+system old_hive_frozen_river = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<500> | H<0> | N<food_storage/2> | F[0,1]<300> | F[1,1]<300>;
+
+system new_hive_flower_forest = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<20>  | H<0> | N<20>             | F[0,1]<350> | F[1,1]<350> | F[2,1]<350>;
+system old_hive_flower_forest = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<500> | H<0> | N<food_storage/2> | F[0,1]<350> | F[1,1]<350> | F[2,1]<350>;
+
+
+/* -------------------------------------------------------------------------- */
+/*                                TODO & NOTES                                */
+/* -------------------------------------------------------------------------- */
+
+/* 
+NOTES:
+
+------------------------------------ - -----------------------------------
+Worker (WS) store NECTAR (N):
+    Decrease bee ENERGY;
+    Increase NECTAR storage (N);
+
+Base rates:
+    bee_store_nectar;
+
+
+rule worker_store_nectar for e in [1, ENERGY] and p in [0, POISONING] {
+    WB[e,p] -[bee_store_nectar * (1- #used_storage/food_storage)]-> WB[e,p] | N<1>
+}
+------------------------------------ - -----------------------------------
+
+*/
+
+/*
+TODO: 
+    Possible simulation: Pesticidi?? Temperature intermedie (caldo-normale e normale-freddo)??
+*/

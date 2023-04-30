@@ -1,0 +1,9 @@
+module "population"
+load "C:\Users\damia\Repository\Honey-Hive\rules-testing\test_bee_changes_role.pm"
+init "init"
+add all measures
+deadline 3000
+dt 3
+replica 10
+simulate
+save output "./results/tests/bee_changes_role" prefix "hive_" postfix "__"
