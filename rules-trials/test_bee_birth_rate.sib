@@ -1,5 +1,5 @@
 module "population"
-load "C:\Users\damia\Repository\Honey-Hive\rules-testing\test_bee_birth_rate.pm"
+load "C:\Users\damia\Repository\Honey-Hive\rules-trials\test_bee_birth_rate.pm"
 init "init"
 add all measures
 deadline 1000
