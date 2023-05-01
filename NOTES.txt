@@ -6,6 +6,7 @@ CAPTION:
     (**) - Inaccesible;
     >    - Event taken into account;
     *    - Event not considered;
+    (x*) - Refered to article x;
 
 # --------------------------------- Articles --------------------------------- #
 
@@ -54,7 +55,7 @@ https://blog.3bee.com/
 # ---------------------------------------------------------------------------- #
 
 PESTICIDE EFFECTS: 
-    > Affect the ability to return to the hive (Exposure: CO2);                                                               (d*)
+    * Affect the ability to return to the hive (Exposure: CO2);                                                               (d*)
     > Reduce survival rate (Exposure: CO2);                                                                                   (d*)
     * Reduce pollen gathering ability (Exposure: CO2);                                                                        (d*)
     * Affect the ability of the bees to communicate the source of food (Exposure: Organophorus and carbamate insecticides);   (d*)
@@ -64,9 +65,9 @@ WATER:
     * Annual precipitation of 1205 mm -> survival rate 50%;             (b*)
 
 TEMPERATUTE:
-    The optimum temperature (90% survival rate) is between 28 °C and 34 °C;     (a*)
-    Survival rate 18.5% at 37 °C;                                               (a*)
-    Survival rate 11.9% at 15 °C;                                               (a*)
+    > The optimum temperature (90% survival rate) is between 28 °C and 34 °C;     (a*)
+    > Survival rate 18.5% at 37 °C;                                               (a*)
+    > Survival rate 11.9% at 15 °C;                                               (a*)
 
 HUMIDITY:
     > The optimum humidity is 60% for evaporation of honey;                                           (4*)
@@ -238,27 +239,3 @@ Temperate biomes:
     Plains          2; 2x400
     Flower Forest   5; 2x600
     Stony Peaks     8; 2x250
-
-
-
-                SPECIES                             |   Nectar production 24 h covered 
-            - Melittophily -                        |       equation M ± s.d.(μL)
-____________________________________________________________________________________________
-                                                    |
-Faramea uniflora Dwyer & M. V. Hayden               |             0·2 ± 0·2
-Psychotria acuminata Benth.                         |             1·9 ± 0·8 
-Psychotria tinctoria Ruiz & Pav.                    |             4·9 ± 3·4
-Palicourea sp. nov. ined. C.M. Taylor               |             5·8 ± 2·3 
-Coccocypselum condalia Pers.                        |             0·8 ± 0·4 
-Manettia sp. 2                                      |             3·1 ± 1·4 
-Rudgea ciliata (Ruiz & Pav.) Spreng                 |             2·1 ± 0·9 
-Stilpnophyllum oellgaardii L. Andersson             |             3·9 ± 2·2 
-Arcytophyllum macbridei Standl.                     |             0·5 ± 0·2 
-Arcytophyllum capitatum (Benth.) K. Schum.          |             1·0 ± 0·5 
-Arcytophyllum ciliolatum Standl.                    |             1·4 ± 0·8 
-Arcytophyllum thymifolium (Ruiz & Pav.) Standl.     |             0·4 ± 0·2
-Arcytophyllum vernicosum Standl.                    |             0·4 ± 0·4 
-Notopleura vargasiana sp. nov. ined. C.M. Taylor    |             0·8 ± 0·3
-Faramea cf. glandulosa Poepp. & Endl.               |             1·6 ± 0·8 
-Psychotria reticulata Ruiz & Pav.                   |             1·0 ± 0·5 
-Faramea coerulescens K. Schum. & K. Krause          |             4·7 ± 2·6
