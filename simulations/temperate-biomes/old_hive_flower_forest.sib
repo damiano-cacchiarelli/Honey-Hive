@@ -1,0 +1,19 @@
+module "population"
+load "../../basic-honey-hive.pm"
+
+set "temperature" 31.0
+set "rainfall_rate" 1.0
+set "humidity" 5.0
+set "flowers_biodiversity" 3.0
+set "pesticide_exposure_rate" 0.0
+
+init "old_hive_flower_forest"
+env
+
+add all measures
+deadline 1000
+dt 1
+replica 50
+
+simulate
+save output "./results/basic-honey-hive/temperate-biomes/old_hive_flower_forest" prefix "hive_" postfix "__"

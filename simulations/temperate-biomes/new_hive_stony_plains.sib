@@ -7,7 +7,7 @@ set "humidity" 5.0
 set "flowers_biodiversity" 3.0
 set "pesticide_exposure_rate" 0.0
 
-init "new_hive_flower_forest"
+init "new_hive_stony_plains"
 env
 
 add all measures
@@ -16,4 +16,4 @@ dt 1
 replica 50
 
 simulate
-save output "./results/basic-honey-hive/temperate-biomes/new_hive_flower_forest" prefix "hive_" postfix "__"
+save output "./results/basic-honey-hive/temperate-biomes/new_hive_stony_plains" prefix "hive_" postfix "__"
