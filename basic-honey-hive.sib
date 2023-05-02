@@ -1,7 +1,7 @@
 module "population"
 load "C:\Users\damia\Repository\Honey-Hive\basic-honey-hive.pm"
 
-init "old_hive_desert"
+init "new_hive_stony_plains"
 env
 
 add all measures
@@ -10,4 +10,4 @@ dt 1
 replica 50
 
 simulate
-save output "./results/basic-honey-hive/arid-biomes/old_hive_desert_pesticide" prefix "hive_" postfix "__"
+save output "./results/basic-honey-hive/temperate-biomes/new_hive_stony_plains" prefix "hive_" postfix "__"

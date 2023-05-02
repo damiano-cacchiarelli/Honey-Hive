@@ -1,3 +1,54 @@
+/* ---------------------------------------------------------------------------- *\
+/*                                  REFERENCES                                  *\
+/* ---------------------------------------------------------------------------- *\
+
+CAPTION:
+    (**) - Inaccesible;
+
+/* --------------------------------- Articles --------------------------------- */
+/*
+a) Temperature-driven changes in viral loads in the honey bee Apis mellifera
+    https://www.sciencedirect.com/science/article/pii/S0022201118302155
+
+b) Summer weather conditions influence winter survival of honey bees (Apis mellifera) in the northeastern United States
+    https://www.nature.com/articles/s41598-021-81051-8#Tab2
+
+c) The Effect of Supplementary Feeding with Different Pollens in Autumn on Colony Development under Natural Environment
+    https://www.mdpi.com/2075-4450/13/7/588?type=check_update&version=2#
+
+d) Behavioural Effects of Pesticides in Bees
+    https://link.springer.com/article/10.1023/A:1022575315413
+
+e) Nectar Sugar Composition and Volumes of 47 Species of Gentianales from a Southern Ecuadorian Montane Forest
+    https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2803417/
+
+> Others:
+    https://www.nature.com/articles/s41598-023-32824-w
+    (**) https://link.springer.com/article/10.1007/s10980-023-01638-6
+*/
+
+/* --------------------------------- Websites --------------------------------- */
+
+/*
+Apis mellifera: https://animalivolanti.it/insetti/api-miele
+
+https://bee-health.extension.org:
+    (1) https://bee-health.extension.org/honey-bee-nutrition/
+
+https://www.legambientefaenza.it:
+    (2) https://www.legambientefaenza.it/storie-di-api/2021/07/dal-nettare-al-miele/
+    (3) https://www.legambientefaenza.it/storie-di-api/2021/05/quanto-nettare-trasporta-unape/
+
+https://beekeepclub.com
+    (4) https://beekeepclub.com/how-honeybees-maintain-temperature-and-humidity-in-a-beehive/
+
+https://blog.3bee.com/
+    (5) https://blog.3bee.com/api-produrre-il-miele/
+
+> Others:
+    https://www.apisole.it/index.php/forum/apicoltura-in-pillole/76-impollinazione-quanto-vale
+*/
+
 /* -------------------------------------------------------------------------- */
 /*                               CONST & AGENTS                               */
 /* -------------------------------------------------------------------------- */
@@ -52,11 +103,11 @@ const flower_pruduce_nectar_rate = 0.2 ;
 
 /* --------------------------------- Params --------------------------------- */
 
-param temperature = 40 ;                    /* Ranges between 5 and 60. The ideal_temperature is 31 degrees */
+param temperature = 31 ;                    /* Ranges between 5 and 60. The ideal_temperature is 31 degrees */
 param rainfall_rate = 1;                    /* The rateo of rainfall; values between 0 and 1 */
-param humidity = 1 ;                        /* Represent the percentage of humidity; values between 0 and 9; The ideal_humidity is 5; */
-param flowers_biodiversity = 1 ;            /* The number of species of flowers */
-param pesticide_exposure_rate = 0.5 ;       /* The rate at with the workers are exposed to pesticide; Ranges between 0 and 1: 0 means no exposure; */
+param humidity = 5 ;                        /* Represent the percentage of humidity; values between 0 and 9; The ideal_humidity is 5; */
+param flowers_biodiversity = 3 ;            /* The number of species of flowers */
+param pesticide_exposure_rate = 0.0 ;       /* The rate at with the workers are exposed to pesticide; Ranges between 0 and 1: 0 means no exposure; */
 
 /* ---------------------------------- Math functions --------------------------------- */
 
@@ -457,7 +508,7 @@ system old_hive_mangrove_swamp = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<200> | H<0> | 
 
 
 /*
-Frozen River biome: 
+Frozen River biome: many flowers, a cool and wet climate;
 
 Params:
     temperature = 22; 
@@ -494,8 +545,8 @@ Params:
     flowers_biodiversity = 3 ;
     pesticide_exposure_rate = 0.0; 0.8;
 */
-system new_hive_flower_forest = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<40>  | H<0> | N<40>             | F[0,1]<3> | F[1,1]<3> | F[2,1]<3>;
-system old_hive_flower_forest = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<200> | H<0> | N<FOOD_STORAGE/2> | F[0,1]<3> | F[1,1]<3> | F[2,1]<3>;
+system new_hive_stony_plains = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<40>  | H<0> | N<40>             | F[0,1]<3> | F[1,1]<3> | F[2,1]<3>;
+system old_hive_stony_plains = Q[ENERGY-1]<1> | WB[ENERGY-1, 0]<200> | H<0> | N<FOOD_STORAGE/2> | F[0,1]<3> | F[1,1]<3> | F[2,1]<3>;
 
 /*
 Flower Forest biome: a lot of flowers, and temperate climate;
